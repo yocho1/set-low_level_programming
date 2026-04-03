@@ -9,7 +9,11 @@
  */
 int main(int argc, char *argv[])
 {
+	/* Print number of arguments (excluding program name) */
 	printf("%d\n", argc - 1);
+
+	/* Suppress unused parameter warning */
 	(void)argv;
+
 	return (0);
 }
