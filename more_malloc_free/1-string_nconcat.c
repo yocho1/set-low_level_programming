@@ -2,6 +2,43 @@
 #include <stdlib.h>
 
 /**
+ * get_length - calculates length of a string
+ * @str: input string (can be NULL)
+ *
+ * Return: length of string (0 if NULL)
+ */
+unsigned int get_length(char *str)
+{
+	unsigned int len = 0;
+
+	if (str == NULL)
+		return (0);
+
+	while (str[len] != '\0')
+		len++;
+
+	return (len);
+}
+
+/**
+ * copy_string - copies a string into destination
+ * @dest: destination pointer
+ * @src: source string
+ * @len: number of characters to copy
+ *
+ * Return: pointer to next position after copy
+ */
+char *copy_string(char *dest, char *src, unsigned int len)
+{
+	unsigned int i;
+
+	for (i = 0; i < len; i++)
+		dest[i] = src[i];
+
+	return (dest + len);
+}
+
+/**
  * string_nconcat - concatenates two strings, using n bytes of s2
  * @s1: first string
  * @s2: second string
@@ -12,44 +49,25 @@
 char *string_nconcat(char *s1, char *s2, unsigned int n)
 {
 	char *concat;
-	unsigned int len1 = 0, len2 = 0;
-	unsigned int i, j;
+	unsigned int len1, len2;
 
-	/* Treat NULL as empty string */
-	if (s1 == NULL)
-		s1 = "";
-	if (s2 == NULL)
-		s2 = "";
-
-	/* Calculate length of s1 */
-	while (s1[len1] != '\0')
-		len1++;
-
-	/* Calculate length of s2 */
-	while (s2[len2] != '\0')
-		len2++;
+	/* Get lengths (treat NULL as empty) */
+	len1 = get_length(s1);
+	len2 = get_length(s2);
 
 	/* If n >= length of s2, use whole s2 */
 	if (n >= len2)
 		n = len2;
 
-	/* Allocate memory for s1 + n bytes of s2 + null terminator */
+	/* Allocate memory */
 	concat = malloc((len1 + n + 1) * sizeof(char));
-
-	/* Check if malloc failed */
 	if (concat == NULL)
 		return (NULL);
 
-	/* Copy s1 into concat */
-	for (i = 0; i < len1; i++)
-		concat[i] = s1[i];
-
-	/* Copy n bytes from s2 into concat */
-	for (j = 0; j < n; j++)
-		concat[i + j] = s2[j];
-
-	/* Add null terminator */
-	concat[i + j] = '\0';
+	/* Copy strings */
+	copy_string(concat, s1, len1);
+	copy_string(concat + len1, s2, n);
+	concat[len1 + n] = '\0';
 
 	return (concat);
 }
