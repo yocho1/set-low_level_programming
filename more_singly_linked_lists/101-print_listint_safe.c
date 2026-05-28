@@ -3,22 +3,18 @@
 #include <stdlib.h>
 
 /**
- * print_listint_safe - prints a listint_t linked list safely
- * (handles lists with loops)
+ * detect_loop - detects if a linked list has a loop
  * @head: pointer to the head of the list
  *
- * Return: number of nodes in the list
+ * Return: pointer to meeting point if loop, NULL otherwise
  */
-size_t print_listint_safe(const listint_t *head)
+const listint_t *detect_loop(const listint_t *head)
 {
-	const listint_t *slow, *fast, *loop_start;
-	size_t count = 0;
-	int loop_detected = 0;
+	const listint_t *slow, *fast;
 
 	if (head == NULL)
-		return (0);
+		return (NULL);
 
-	/* Detect if there's a loop using Floyd's algorithm */
 	slow = head;
 	fast = head;
 
@@ -28,52 +24,109 @@ size_t print_listint_safe(const listint_t *head)
 		fast = fast->next->next;
 
 		if (slow == fast)
-		{
-			loop_detected = 1;
-			break;
-		}
+			return (slow);
 	}
 
-	/* If no loop, print normally */
-	if (!loop_detected)
-	{
-		while (head != NULL)
-		{
-			printf("[%p] %d\n", (void *)head, head->n);
-			count++;
-			head = head->next;
-		}
-		return (count);
-	}
+	return (NULL);
+}
 
-	/* Find the start of the loop */
-	slow = head;
-	while (slow != fast)
+/**
+ * find_loop_start - finds the start node of a loop
+ * @head: pointer to the head of the list
+ * @meet: meeting point from Floyd's algorithm
+ *
+ * Return: pointer to the start of the loop
+ */
+const listint_t *find_loop_start(const listint_t *head,
+				 const listint_t *meet)
+{
+	const listint_t *slow = head;
+
+	if (meet == NULL)
+		return (NULL);
+
+	while (slow != meet)
 	{
 		slow = slow->next;
-		fast = fast->next;
+		meet = meet->next;
 	}
-	loop_start = slow;
+
+	return (slow);
+}
+
+/**
+ * print_normal_list - prints a normal list (no loop)
+ * @head: pointer to the head of the list
+ *
+ * Return: number of nodes printed
+ */
+size_t print_normal_list(const listint_t *head)
+{
+	size_t count = 0;
+
+	while (head != NULL)
+	{
+		printf("[%p] %d\n", (void *)head, head->n);
+		count++;
+		head = head->next;
+	}
+
+	return (count);
+}
+
+/**
+ * print_loop_list - prints a list with a loop
+ * @head: pointer to the head of the list
+ * @loop_start: pointer to the start of the loop
+ *
+ * Return: number of nodes printed
+ */
+size_t print_loop_list(const listint_t *head, const listint_t *loop_start)
+{
+	const listint_t *current;
+	size_t count = 0;
 
 	/* Print nodes before the loop */
-	slow = head;
-	while (slow != loop_start)
+	current = head;
+	while (current != loop_start)
 	{
-		printf("[%p] %d\n", (void *)slow, slow->n);
+		printf("[%p] %d\n", (void *)current, current->n);
 		count++;
-		slow = slow->next;
+		current = current->next;
 	}
 
 	/* Print nodes inside the loop (once) */
-	slow = loop_start;
 	do {
-		printf("[%p] %d\n", (void *)slow, slow->n);
+		printf("[%p] %d\n", (void *)current, current->n);
 		count++;
-		slow = slow->next;
-	} while (slow != loop_start);
+		current = current->next;
+	} while (current != loop_start);
 
 	/* Print the loop indicator */
-	printf("-> [%p] %d\n", (void *)slow, slow->n);
+	printf("-> [%p] %d\n", (void *)current, current->n);
 
 	return (count);
+}
+
+/**
+ * print_listint_safe - prints a listint_t linked list safely
+ * @head: pointer to the head of the list
+ *
+ * Return: number of nodes in the list
+ */
+size_t print_listint_safe(const listint_t *head)
+{
+	const listint_t *meet;
+	const listint_t *loop_start;
+
+	if (head == NULL)
+		return (0);
+
+	meet = detect_loop(head);
+
+	if (meet == NULL)
+		return (print_normal_list(head));
+
+	loop_start = find_loop_start(head, meet);
+	return (print_loop_list(head, loop_start));
 }
