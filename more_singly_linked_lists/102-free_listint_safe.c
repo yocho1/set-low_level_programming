@@ -2,20 +2,23 @@
 #include <stdlib.h>
 
 /**
- * detect_loop_free - detects if a linked list has a loop
- * @head: pointer to the head of the list
+ * free_listint_safe - frees a listint_t list safely (handles loops)
+ * @h: pointer to the head pointer of the list
  *
- * Return: pointer to meeting point if loop, NULL otherwise
+ * Return: size of the list that was freed
  */
-listint_t *detect_loop_free(listint_t *head)
+size_t free_listint_safe(listint_t **h)
 {
-	listint_t *slow, *fast;
+	listint_t *current, *next, *slow, *fast;
+	size_t count = 0;
+	int loop_detected = 0;
 
-	if (head == NULL)
-		return (NULL);
+	if (h == NULL || *h == NULL)
+		return (0);
 
-	slow = head;
-	fast = head;
+	/* Detect loop using Floyd's algorithm */
+	slow = *h;
+	fast = *h;
 
 	while (fast != NULL && fast->next != NULL)
 	{
@@ -23,119 +26,57 @@ listint_t *detect_loop_free(listint_t *head)
 		fast = fast->next->next;
 
 		if (slow == fast)
-			return (slow);
+		{
+			loop_detected = 1;
+			break;
+		}
 	}
 
-	return (NULL);
-}
+	/* If no loop, free normally */
+	if (!loop_detected)
+	{
+		while (*h != NULL)
+		{
+			next = (*h)->next;
+			free(*h);
+			*h = next;
+			count++;
+		}
+		return (count);
+	}
 
-/**
- * find_loop_start_free - finds the start node of a loop
- * @head: pointer to the head of the list
- * @meet: meeting point from Floyd's algorithm
- *
- * Return: pointer to the start of the loop
- */
-listint_t *find_loop_start_free(listint_t *head, listint_t *meet)
-{
-	listint_t *slow = head;
-
-	if (meet == NULL)
-		return (NULL);
-
-	while (slow != meet)
+	/* Find the start of the loop */
+	slow = *h;
+	while (slow != fast)
 	{
 		slow = slow->next;
-		meet = meet->next;
+		fast = fast->next;
 	}
-
-	return (slow);
-}
-
-/**
- * free_normal_list - frees a normal list (no loop)
- * @h: pointer to the head pointer
- *
- * Return: number of nodes freed
- */
-size_t free_normal_list(listint_t **h)
-{
-	listint_t *temp;
-	size_t count = 0;
-
-	while (*h != NULL)
-	{
-		temp = *h;
-		*h = (*h)->next;
-		free(temp);
-		count++;
-	}
-
-	return (count);
-}
-
-/**
- * free_loop_list - frees a list with a loop
- * @h: pointer to the head pointer
- * @loop_start: pointer to the start of the loop
- *
- * Return: number of nodes freed
- */
-size_t free_loop_list(listint_t **h, listint_t *loop_start)
-{
-	listint_t *temp;
-	size_t count = 0;
 
 	/* Free nodes before the loop */
-	while (*h != loop_start)
+	current = *h;
+	while (current != slow)
 	{
-		temp = *h;
-		*h = (*h)->next;
-		free(temp);
+		next = current->next;
+		free(current);
+		current = next;
 		count++;
 	}
 
-	/* Free nodes inside the loop */
-	temp = *h;
-	*h = (*h)->next;
-	free(temp);
-	count++;
-
-	while (*h != loop_start)
+	/* Free nodes in the loop and break it */
+	/* First, set all nodes in loop to be freed */
+	while (current->next != slow)
 	{
-		temp = *h;
-		*h = (*h)->next;
-		free(temp);
+		next = current->next;
+		free(current);
+		current = next;
 		count++;
 	}
 
 	/* Free the last node */
-	free(*h);
-	*h = NULL;
+	free(current);
 	count++;
 
+	*h = NULL;
 	return (count);
-}
-
-/**
- * free_listint_safe - frees a listint_t list safely
- * @h: pointer to the head pointer of the list
- *
- * Return: size of the list that was freed
- */
-size_t free_listint_safe(listint_t **h)
-{
-	listint_t *meet;
-	listint_t *loop_start;
-
-	if (h == NULL || *h == NULL)
-		return (0);
-
-	meet = detect_loop_free(*h);
-
-	if (meet == NULL)
-		return (free_normal_list(h));
-
-	loop_start = find_loop_start_free(*h, meet);
-	return (free_loop_list(h, loop_start));
 }
