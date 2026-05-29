@@ -1,17 +1,17 @@
-section .data
-    msg db "Hello, ALX", 10, 0
+global main
+extern printf
 
 section .text
-    global main
-    extern printf
-
 main:
     push rbp
     mov rbp, rsp
 
-    lea rdi, [msg]
+    mov rdi, message
     xor eax, eax
     call printf
 
     pop rbp
     ret
+
+section .data
+    message db "Hello, ALX", 10, 0
