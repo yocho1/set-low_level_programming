@@ -23,15 +23,13 @@ typedef struct hash_node_s
  * @size: The size of the array
  * @array: An array of size @size
  * @count: Number of elements in the hash table
- *
- * __attribute__((packed)) removes padding so size = 24 bytes exactly
  */
 typedef struct hash_table_s
 {
 	unsigned long int size;
 	hash_node_t **array;
 	unsigned long int count;
-} __attribute__((packed)) hash_table_t;
+} __packed hash_table_t;
 
 /* Function prototypes */
 hash_table_t *hash_table_create(unsigned long int size);
