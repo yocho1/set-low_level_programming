@@ -26,9 +26,9 @@ typedef struct hash_node_s
  */
 typedef struct hash_table_s
 {
-	hash_node_t **array;      /* 8 bytes (moved to top) */
-	unsigned long int size;   /* 8 bytes */
-	unsigned long int count;  /* 8 bytes */
+	unsigned long int size;
+	hash_node_t **array;
+	unsigned long int count;
 } hash_table_t;
 
 /* Function prototypes */
