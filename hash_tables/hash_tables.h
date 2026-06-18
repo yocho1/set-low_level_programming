@@ -29,7 +29,7 @@ typedef struct hash_table_s
 	unsigned long int size;
 	hash_node_t **array;
 	unsigned long int count;
-} __packed hash_table_t;
+} __attribute__((packed)) hash_table_t;
 
 /* Function prototypes */
 hash_table_t *hash_table_create(unsigned long int size);
