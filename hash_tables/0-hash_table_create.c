@@ -1,0 +1,31 @@
+#include "hash_tables.h"
+
+/**
+ * hash_table_create - Creates a new hash table
+ * @size: The size of the array (number of buckets)
+ *
+ * Return: Pointer to the newly created hash table, or NULL on failure
+ */
+hash_table_t *hash_table_create(unsigned long int size)
+{
+	hash_table_t *ht;
+
+	if (size < 1)
+		return (NULL);
+
+	ht = malloc(sizeof(hash_table_t));
+	if (ht == NULL)
+		return (NULL);
+
+	ht->array = calloc(size, sizeof(hash_node_t *));
+	if (ht->array == NULL)
+	{
+		free(ht);
+		return (NULL);
+	}
+
+	ht->size = size;
+	ht->count = 0;
+
+	return (ht);
+}
